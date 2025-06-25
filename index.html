@@ -2,35 +2,95 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Calculateur de saut VTT Freeride</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Font Awesome pour icônes -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Poppins', sans-serif;
       max-width: 600px;
-      margin: auto;
-      padding: 1em;
+      margin: 2em auto;
+      padding: 1.5em;
+      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+      color: #222;
+    }
+    h1 {
+      text-align: center;
+      color: #2b7a78;
+      margin-bottom: 1em;
     }
     label {
       display: block;
       margin-top: 1em;
+      font-weight: 600;
+      color: #17252a;
     }
     input, select {
-      padding: 0.3em;
+      padding: 0.5em;
       margin-top: 0.3em;
       width: 100%;
-    }
-    button {
-      margin-top: 1em;
-      padding: 0.5em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      transition: border-color 0.3s;
       font-size: 1em;
     }
-    .result {
-      margin-top: 1em;
-      padding: 1em;
-      border: 1px solid #ccc;
+    input:focus, select:focus {
+      border-color: #3aafa9;
+      outline: none;
+    }
+    button {
+      margin-top: 1.5em;
+      padding: 0.8em;
+      font-size: 1.1em;
+      background-color: #3aafa9;
+      border: none;
       border-radius: 8px;
-      background: #f9f9f9;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(58, 175, 169, 0.4);
+      transition: background-color 0.3s, box-shadow 0.3s;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #2b7a78;
+      box-shadow: 0 6px 10px rgba(43, 122, 120, 0.7);
+    }
+    .result {
+      margin-top: 1.5em;
+      padding: 1.2em;
+      border: 2px solid #3aafa9;
+      border-radius: 10px;
+      background: #def2f1;
+      font-weight: 600;
+      font-size: 1.2em;
+      min-height: 3em;
+      opacity: 0;
+      animation: fadeIn 1s forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .social-links {
+      margin-top: 2em;
+      text-align: center;
+    }
+    .social-links a {
+      margin: 0 1em;
+      color: #17252a;
+      font-size: 2em;
+      transition: color 0.3s;
+    }
+    .social-links a:hover {
+      color: #3aafa9;
     }
   </style>
 </head>
@@ -65,9 +125,17 @@
 
   <div class="result" id="resultat"></div>
 
+  <div class="social-links">
+    <a href="https://www.instagram.com/mega__shred/" target="_blank" title="Instagram">
+      <i class="fab fa-instagram"></i>
+    </a>
+    <a href="https://www.youtube.com/channel/UCzrMXoQNUS7lzOdxzoR7H1w" target="_blank" title="YouTube">
+      <i class="fab fa-youtube"></i>
+    </a>
+  </div>
+
   <script>
     function parseInput(value) {
-      // remplace la virgule par un point et convertit en float
       return parseFloat(value.replace(',', '.'));
     }
 
@@ -89,28 +157,22 @@
 
       const frottementsChecked = document.getElementById("frottements").checked;
 
-      // Calcul boost pop selon angle (en degrés pour le cos)
       let angleDeg = a * 180 / Math.PI;
-      const alphaMax = 0.3; // boost max +30% vitesse
+      const alphaMax = 0.3;
       let alpha = 0;
       if (popChecked) {
         alpha = alphaMax * Math.cos(angleDeg * Math.PI / 180);
-        if (alpha < 0) alpha = 0; // pas de boost négatif si angle > 90°
+        if (alpha < 0) alpha = 0;
       }
 
-      // Appliquer boost pop à la vitesse initiale
       let v_eff = v * (1 + alpha);
-
-      // Appliquer effet du vent (ajout/soustraction simple)
       v_eff += wind;
 
-      // Simuler frottements : réduction linéaire simple sur la vitesse
       if (frottementsChecked) {
-        const frottementCoeff = 0.1; // 10% de perte sur la vitesse
+        const frottementCoeff = 0.1;
         v_eff = v_eff * (1 - frottementCoeff);
       }
 
-      // Calcul de la portée avec vitesse effective
       let portée = (v_eff * v_eff * Math.sin(2 * a)) / g;
 
       let resultat = `<strong>Portée calculée :</strong> ${portée.toFixed(2)} m<br>`;
@@ -125,7 +187,12 @@
         }
       }
 
-      document.getElementById("resultat").innerHTML = resultat;
+      const divResultat = document.getElementById("resultat");
+      divResultat.innerHTML = resultat;
+      divResultat.style.opacity = 0;
+      setTimeout(() => {
+        divResultat.style.opacity = 1;
+      }, 50);
     }
   </script>
 </body>
