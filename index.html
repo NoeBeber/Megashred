@@ -2,22 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Calculateur de saut VTT Freeride amélioré</title>
-  
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculateur de saut VTT Freeride</title>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       max-width: 600px;
-      margin: 2em auto;
+      margin: auto;
       padding: 1em;
       background: #f0f4f8;
-      color: #222;
+      color: #333;
     }
     h1 {
       text-align: center;
@@ -33,14 +27,9 @@
       margin-top: 0.3em;
       width: 100%;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1em;
+      border-radius: 4px;
       box-sizing: border-box;
-      transition: border-color 0.3s ease;
-    }
-    input:focus, select:focus {
-      border-color: #3498db;
-      outline: none;
+      font-size: 1em;
     }
     button {
       margin-top: 1.5em;
@@ -48,11 +37,11 @@
       font-size: 1.1em;
       width: 100%;
       background-color: #3498db;
-      color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 5px;
+      color: white;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       transition: background-color 0.3s ease;
     }
     button:hover {
@@ -65,62 +54,61 @@
       border-radius: 8px;
       background: white;
       font-size: 1.1em;
-      min-height: 3em;
-      line-height: 1.5em;
+      min-height: 70px;
     }
-    .social {
+    .options {
+      margin-top: 1em;
+      padding: 1em;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    .option-group {
+      margin-bottom: 1em;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .footer {
       margin-top: 2em;
-      text-align: center;
-    }
-    .social a {
-      color: #3498db;
-      font-size: 2.5em;
-      margin: 0 15px;
-      transition: color 0.3s ease;
-      text-decoration: none;
-    }
-    .social a:hover {
-      color: #1d6fa5;
-    }
-    .footer-text {
-      margin-top: 3em;
       font-size: 0.9em;
       color: #555;
       text-align: center;
-      font-style: italic;
-      line-height: 1.4em;
     }
-    .option-container {
+    .social-links {
       margin-top: 1em;
-      background: #dceefc;
-      padding: 1em;
-      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      gap: 1.5em;
     }
-    .option-container label {
-      font-weight: 500;
-      margin-top: 0.3em;
-      display: inline-block;
+    .social-links a {
+      text-decoration: none;
+      color: #3498db;
+      font-weight: 700;
+      transition: color 0.3s ease;
     }
-    .small-input {
-      width: 30%;
-      display: inline-block;
-      margin-left: 0.5em;
+    .social-links a:hover {
+      color: #1d6fa5;
     }
   </style>
 </head>
 <body>
   <h1>Calculateur de saut VTT Freeride</h1>
-  
+
   <label for="speed">Vitesse initiale :</label>
   <input type="text" id="speed" placeholder="ex : 36 ou 10,5" />
-  <select id="speedUnit" aria-label="Unité de vitesse">
+  <select id="speedUnit">
     <option value="ms">m/s</option>
     <option value="kmh" selected>km/h</option>
   </select>
 
   <label for="angle">Angle :</label>
   <input type="text" id="angle" placeholder="ex : 45 ou 0,785" />
-  <select id="angleUnit" aria-label="Unité d'angle">
+  <select id="angleUnit">
     <option value="deg" selected>degrés</option>
     <option value="rad">radians</option>
   </select>
@@ -128,18 +116,30 @@
   <label for="target">Portée souhaitée (mètres) :</label>
   <input type="text" id="target" placeholder="ex : 10 ou 10,5" />
 
-  <div class="option-container">
-    <label><input type="checkbox" id="popCheck" /> Activer effet "pop" (saut plus long)</label><br>
-    <label><input type="checkbox" id="frictionCheck" /> Simuler frottements (portée réduite)</label><br>
-    <label><input type="checkbox" id="windCheck" /> Simuler vent</label>
-    <div id="windOptions" style="display:none; margin-top: 0.5em;">
-      <label for="windSpeed">Vitesse du vent (m/s) :</label>
-      <input type="text" id="windSpeed" class="small-input" placeholder="ex : 3" />
-      <label for="windAngle" style="margin-left: 1em;">Direction du vent (° par rapport au saut) :</label>
-      <input type="text" id="windAngle" class="small-input" placeholder="ex : 0" />
-      <small style="display:block; margin-top: 0.3em; color:#555;">
-        0° = vent de face, 180° = vent dans le dos.
-      </small>
+  <div class="options">
+    <div class="option-group">
+      <label class="checkbox-label" for="popCheck">
+        <input type="checkbox" id="popCheck" />
+        Simuler le "pop" (impulsion supplémentaire à la sortie du saut)
+      </label>
+    </div>
+    <div class="option-group">
+      <label class="checkbox-label" for="frictionCheck">
+        <input type="checkbox" id="frictionCheck" />
+        Simuler les frottements (réduit la portée)
+      </label>
+    </div>
+    <div class="option-group">
+      <label class="checkbox-label" for="windCheck">
+        <input type="checkbox" id="windCheck" />
+        Simuler le vent
+      </label>
+      <div style="margin-top: 0.5em; padding-left: 1.5em;">
+        <label for="windSpeed">Vitesse du vent (m/s) :</label>
+        <input type="text" id="windSpeed" placeholder="ex : 5" disabled />
+        <label for="windAngle">Direction du vent (°) (0 = vent de face, 180 = vent dans le dos) :</label>
+        <input type="text" id="windAngle" placeholder="ex : 0" disabled />
+      </div>
     </div>
   </div>
 
@@ -147,27 +147,21 @@
 
   <div class="result" id="resultat"></div>
 
-  <div class="social">
-    <a href="https://www.instagram.com/mega__shred/" target="_blank" aria-label="Instagram Mega Shred">
-      <i class="fab fa-instagram"></i>
-    </a>
-    <a href="https://www.youtube.com/channel/UCzrMXoQNUS7lzOdxzoR7H1w" target="_blank" aria-label="Chaîne YouTube Mega Shred">
-      <i class="fab fa-youtube"></i>
-    </a>
+  <div class="social-links">
+    <a href="https://www.instagram.com/mega__shred/" target="_blank" rel="noopener noreferrer">Instagram</a>
+    <a href="https://www.youtube.com/channel/UCzrMXoQNUS7lzOdxzoR7H1w" target="_blank" rel="noopener noreferrer">YouTube</a>
   </div>
 
-  <div class="footer-text">
-    Cette simulation se rapproche de la réalité.<br>
-    La vitesse indiquée correspond à la vitesse de sortie du saut, pas avant.<br>
-    Effet "pop" simule un coup de pédale en fin de saut pour augmenter la portée.<br>
-    Les frottements réduisent la portée selon une perte d’énergie simple.<br>
-    Le vent peut soit ralentir (vent de face) ou aider (vent dans le dos) la portée.
+  <div class="footer">
+    <p><em>Simulation se rapprochant de la réalité. La vitesse saisie correspond à la vitesse à la sortie du saut, pas avant.</em></p>
   </div>
 
   <script>
-    // Affiche ou cache les options du vent selon la case cochée
+    // Activation/désactivation des inputs vent selon checkbox
     document.getElementById('windCheck').addEventListener('change', function() {
-      document.getElementById('windOptions').style.display = this.checked ? 'block' : 'none';
+      const enabled = this.checked;
+      document.getElementById('windSpeed').disabled = !enabled;
+      document.getElementById('windAngle').disabled = !enabled;
     });
 
     function parseInput(value) {
@@ -191,17 +185,12 @@
       if (vUnit === "kmh") v = v / 3.6;
       if (aUnit === "deg") a = a * Math.PI / 180;
 
-      // Effet pop : augmente la vitesse initiale de 10% (valeur ajustable)
+      // Ajout du pop (impulsion)
       if (document.getElementById('popCheck').checked) {
-        v *= 1.10; // +10%
-      }
-
-      // Calcul classique sans frottements ni vent
-      let portée = (v * v * Math.sin(2 * a)) / g;
-
-      // Simulation frottements : on applique une perte simple, par exemple 15% de portée en moins
-      if (document.getElementById('frictionCheck').checked) {
-        portée *= 0.85; // 15% de perte
+        // Le pop ajoute un boost en fonction de l'angle : plus faible angle = plus de portée (exemple)
+        // On prend 15% de la vitesse initiale en plus max, pondéré par cos(angle)
+        let popBoost = 0.15 * v * Math.cos(a);
+        v += popBoost;
       }
 
       // Simulation du vent
@@ -214,27 +203,20 @@
           return;
         }
 
-        // Convertir angle vent en radians
         let windAngleRad = windAngle * Math.PI / 180;
 
-        // On projette la vitesse du vent dans la direction du saut (2a est direction portée)
-        // Calcul simple : on considère que le vent ajoute ou enlève une vitesse selon cos de l'angle entre vent et saut
-        // Direction du saut (en rad) = a (lancement) ou 2a (portée)? Ici on prend a (angle de lancement)
-        let ventEffect = windSpeed * Math.cos(windAngleRad - a);
+        // Vent de face ralentit, vent dans le dos accélère
+        let ventEffect = - windSpeed * Math.cos(windAngleRad - a);
 
-        // On modifie la vitesse initiale avec l'effet vent (positif ou négatif)
-        // On suppose que le vent agit directement sur la vitesse horizontale
-        let vModifiee = v + ventEffect;
+        v += ventEffect;
 
-        if (vModifiee < 0) vModifiee = 0; // vitesse négative n'a pas de sens
+        if (v < 0) v = 0;
+      }
 
-        // Nouveau calcul portée avec vitesse modifiée
-        portée = (vModifiee * vModifiee * Math.sin(2 * a)) / g;
+      let portée = (v * v * Math.sin(2 * a)) / g;
 
-        // Si frottements activés aussi, on applique la perte après le vent
-        if (document.getElementById('frictionCheck').checked) {
-          portée *= 0.85;
-        }
+      if (document.getElementById('frictionCheck').checked) {
+        portée *= 0.85; // réduction arbitraire de 15% pour frottements
       }
 
       let resultat = "<strong>Portée calculée :</strong> " + portée.toFixed(2) + " m<br>";
