@@ -54,6 +54,13 @@
   <label for="target">Portée souhaitée (mètres) :</label>
   <input type="text" id="target" placeholder="ex : 10 ou 10,5" />
 
+  <label><input type="checkbox" id="pop"> Tirer en saut (pop)</label>
+
+  <label for="wind">Vitesse du vent (m/s, + = dans le dos) :</label>
+  <input type="text" id="wind" placeholder="ex : 0 ou 2,5 ou -1" />
+
+  <label><input type="checkbox" id="frottements"> Simuler les frottements (réduit la portée)</label>
+
   <button onclick="calculer()">Calculer</button>
 
   <div class="result" id="resultat"></div>
@@ -76,9 +83,37 @@
       if (vUnit === "kmh") v = v / 3.6;
       if (aUnit === "deg") a = a * Math.PI / 180;
 
-      let portée = (v * v * Math.sin(2 * a)) / g;
+      const popChecked = document.getElementById("pop").checked;
+      let wind = parseInput(document.getElementById("wind").value);
+      if (isNaN(wind)) wind = 0;
 
-      let resultat = "<strong>Portée calculée :</strong> " + portée.toFixed(2) + " m<br>";
+      const frottementsChecked = document.getElementById("frottements").checked;
+
+      // Calcul boost pop selon angle (en degrés pour le cos)
+      let angleDeg = a * 180 / Math.PI;
+      const alphaMax = 0.3; // boost max +30% vitesse
+      let alpha = 0;
+      if (popChecked) {
+        alpha = alphaMax * Math.cos(angleDeg * Math.PI / 180);
+        if (alpha < 0) alpha = 0; // pas de boost négatif si angle > 90°
+      }
+
+      // Appliquer boost pop à la vitesse initiale
+      let v_eff = v * (1 + alpha);
+
+      // Appliquer effet du vent (ajout/soustraction simple)
+      v_eff += wind;
+
+      // Simuler frottements : réduction linéaire simple sur la vitesse
+      if (frottementsChecked) {
+        const frottementCoeff = 0.1; // 10% de perte sur la vitesse
+        v_eff = v_eff * (1 - frottementCoeff);
+      }
+
+      // Calcul de la portée avec vitesse effective
+      let portée = (v_eff * v_eff * Math.sin(2 * a)) / g;
+
+      let resultat = `<strong>Portée calculée :</strong> ${portée.toFixed(2)} m<br>`;
 
       if (!isNaN(target)) {
         if (portée < target) {
