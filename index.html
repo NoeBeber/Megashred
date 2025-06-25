@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculateur de saut VTT Freeride</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 1em;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+    }
+    input, select {
+      padding: 0.3em;
+      margin-top: 0.3em;
+      width: 100%;
+    }
+    button {
+      margin-top: 1em;
+      padding: 0.5em;
+      font-size: 1em;
+    }
+    .result {
+      margin-top: 1em;
+      padding: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculateur de saut VTT Freeride</h1>
+  
+  <label for="speed">Vitesse initiale :</label>
+  <input type="text" id="speed" placeholder="ex : 36 ou 10,5" />
+  <select id="speedUnit">
+    <option value="ms">m/s</option>
+    <option value="kmh">km/h</option>
+  </select>
+
+  <label for="angle">Angle :</label>
+  <input type="text" id="angle" placeholder="ex : 45 ou 0,785" />
+  <select id="angleUnit">
+    <option value="deg">degrés</option>
+    <option value="rad">radians</option>
+  </select>
+
+  <label for="target">Portée souhaitée (mètres) :</label>
+  <input type="text" id="target" placeholder="ex : 10 ou 10,5" />
+
+  <button onclick="calculer()">Calculer</button>
+
+  <div class="result" id="resultat"></div>
+
+  <script>
+    function parseInput(value) {
+      // remplace la virgule par un point et convertit en float
+      return parseFloat(value.replace(',', '.'));
+    }
+
+    function calculer() {
+      const g = 9.81;
+
+      let v = parseInput(document.getElementById("speed").value);
+      let vUnit = document.getElementById("speedUnit").value;
+      let a = parseInput(document.getElementById("angle").value);
+      let aUnit = document.getElementById("angleUnit").value;
+      let target = parseInput(document.getElementById("target").value);
+
+      if (vUnit === "kmh") v = v / 3.6;
+      if (aUnit === "deg") a = a * Math.PI / 180;
+
+      let portée = (v * v * Math.sin(2 * a)) / g;
+
+      let resultat = "<strong>Portée calculée :</strong> " + portée.toFixed(2) + " m<br>";
+
+      if (!isNaN(target)) {
+        if (portée < target) {
+          resultat += "💡 <em>La portée est inférieure à la cible.</em>";
+        } else if (portée > target) {
+          resultat += "💡 <em>La portée est supérieure à la cible.</em>";
+        } else {
+          resultat += "✅ <em>La portée correspond exactement à la cible.</em>";
+        }
+      }
+
+      document.getElementById("resultat").innerHTML = resultat;
+    }
+  </script>
+</body>
+</html>
