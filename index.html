@@ -6,232 +6,129 @@
   <title>Calculateur de saut VTT Freeride</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: sans-serif;
       max-width: 600px;
       margin: auto;
       padding: 1em;
-      background: #f0f4f8;
-      color: #333;
+      background: #f0f0f0;
     }
     h1 {
       text-align: center;
-      color: #2c3e50;
     }
-    label {
+    label, select, input, button {
       display: block;
-      margin-top: 1em;
-      font-weight: 600;
-    }
-    input, select {
-      padding: 0.5em;
-      margin-top: 0.3em;
       width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-size: 1em;
+      margin-top: 0.5em;
     }
     button {
-      margin-top: 1.5em;
-      padding: 0.7em;
-      font-size: 1.1em;
-      width: 100%;
-      background-color: #3498db;
+      padding: 0.5em;
+      font-size: 1em;
+      background-color: #007acc;
+      color: white;
       border: none;
       border-radius: 5px;
-      color: white;
-      cursor: pointer;
-      font-weight: 700;
-      transition: background-color 0.3s ease;
     }
     button:hover {
-      background-color: #2980b9;
+      background-color: #005f99;
     }
     .result {
-      margin-top: 1.5em;
-      padding: 1em;
+      background: #fff;
       border: 1px solid #ccc;
       border-radius: 8px;
-      background: white;
-      font-size: 1.1em;
-      min-height: 70px;
-    }
-    .options {
-      margin-top: 1em;
       padding: 1em;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      margin-top: 1em;
     }
-    .option-group {
-      margin-bottom: 1em;
-    }
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .footer {
-      margin-top: 2em;
-      font-size: 0.9em;
-      color: #555;
+    .links {
+      margin-top: 1em;
       text-align: center;
     }
-    .social-links {
-      margin-top: 1em;
-      display: flex;
-      justify-content: center;
-      gap: 1.5em;
-    }
-    .social-links a {
+    .links a {
+      margin: 0 1em;
       text-decoration: none;
-      color: #3498db;
-      font-weight: 700;
-      transition: color 0.3s ease;
-    }
-    .social-links a:hover {
-      color: #1d6fa5;
+      color: #007acc;
     }
   </style>
 </head>
 <body>
   <h1>Calculateur de saut VTT Freeride</h1>
-
-  <label for="speed">Vitesse initiale :</label>
-  <input type="text" id="speed" placeholder="ex : 36 ou 10,5" />
-  <select id="speedUnit">
-    <option value="ms">m/s</option>
-    <option value="kmh" selected>km/h</option>
+  
+  <label for="mode">Choisissez ce que vous voulez calculer :</label>
+  <select id="mode">
+    <option value="portee">Portée</option>
+    <option value="vitesse">Vitesse initiale</option>
+    <option value="angle">Angle</option>
   </select>
 
-  <label for="angle">Angle :</label>
-  <input type="text" id="angle" placeholder="ex : 45 ou 0,785" />
-  <select id="angleUnit">
-    <option value="deg" selected>degrés</option>
-    <option value="rad">radians</option>
-  </select>
-
-  <label for="target">Portée souhaitée (mètres) :</label>
-  <input type="text" id="target" placeholder="ex : 10 ou 10,5" />
-
-  <div class="options">
-    <div class="option-group">
-      <label class="checkbox-label" for="popCheck">
-        <input type="checkbox" id="popCheck" />
-        Simuler le "pop" (impulsion supplémentaire à la sortie du saut)
-      </label>
-    </div>
-    <div class="option-group">
-      <label class="checkbox-label" for="frictionCheck">
-        <input type="checkbox" id="frictionCheck" />
-        Simuler les frottements (réduit la portée)
-      </label>
-    </div>
-    <div class="option-group">
-      <label class="checkbox-label" for="windCheck">
-        <input type="checkbox" id="windCheck" />
-        Simuler le vent
-      </label>
-      <div style="margin-top: 0.5em; padding-left: 1.5em;">
-        <label for="windSpeed">Vitesse du vent (m/s) :</label>
-        <input type="text" id="windSpeed" placeholder="ex : 5" disabled />
-        <label for="windAngle">Direction du vent (°) (0 = vent de face, 180 = vent dans le dos) :</label>
-        <input type="text" id="windAngle" placeholder="ex : 0" disabled />
-      </div>
-    </div>
-  </div>
+  <div id="inputs"></div>
 
   <button onclick="calculer()">Calculer</button>
 
   <div class="result" id="resultat"></div>
 
-  <div class="social-links">
-    <a href="https://www.instagram.com/mega__shred/" target="_blank" rel="noopener noreferrer">Instagram</a>
-    <a href="https://www.youtube.com/channel/UCzrMXoQNUS7lzOdxzoR7H1w" target="_blank" rel="noopener noreferrer">YouTube</a>
+  <div class="links">
+    <a href="https://www.instagram.com/mega__shred/" target="_blank">Instagram</a>
+    <a href="https://www.youtube.com/channel/UCzrMXoQNUS7lzOdxzoR7H1w" target="_blank">YouTube</a>
   </div>
 
-  <div class="footer">
-    <p><em>Simulation se rapprochant de la réalité. La vitesse saisie correspond à la vitesse à la sortie du saut, pas avant.</em></p>
-  </div>
+  <p style="font-size: 0.9em; text-align: center; margin-top: 1em;">
+    Cette simulation se rapproche de la réalité. La vitesse saisie correspond à la vitesse à la sortie du saut, pas avant.
+  </p>
 
   <script>
-    // Activation/désactivation des inputs vent selon checkbox
-    document.getElementById('windCheck').addEventListener('change', function() {
-      const enabled = this.checked;
-      document.getElementById('windSpeed').disabled = !enabled;
-      document.getElementById('windAngle').disabled = !enabled;
-    });
+    const g = 9.81;
+
+    const modes = {
+      portee: ["Vitesse initiale (m/s)", "Angle (degrés)"],
+      vitesse: ["Portée souhaitée (m)", "Angle (degrés)"],
+      angle: ["Portée souhaitée (m)", "Vitesse initiale (m/s)"]
+    };
+
+    document.getElementById("mode").addEventListener("change", updateInputs);
+    updateInputs();
+
+    function updateInputs() {
+      const mode = document.getElementById("mode").value;
+      const container = document.getElementById("inputs");
+      container.innerHTML = "";
+      modes[mode].forEach((label, i) => {
+        container.innerHTML += `<label>${label}</label><input type="text" id="input${i}" placeholder="ex: 10 ou 45" />`;
+      });
+    }
 
     function parseInput(value) {
-      return parseFloat(value.replace(',', '.'));
+      return parseFloat(value.replace(",", "."));
     }
 
     function calculer() {
-      const g = 9.81;
+      const mode = document.getElementById("mode").value;
+      let val0 = parseInput(document.getElementById("input0").value);
+      let val1 = parseInput(document.getElementById("input1").value);
+      let result = "";
 
-      let v = parseInput(document.getElementById("speed").value);
-      let vUnit = document.getElementById("speedUnit").value;
-      let a = parseInput(document.getElementById("angle").value);
-      let aUnit = document.getElementById("angleUnit").value;
-      let target = parseInput(document.getElementById("target").value);
-
-      if (isNaN(v) || isNaN(a)) {
-        document.getElementById("resultat").innerHTML = "<span style='color:red;'>Veuillez entrer des nombres valides pour la vitesse et l'angle.</span>";
-        return;
-      }
-
-      if (vUnit === "kmh") v = v / 3.6;
-      if (aUnit === "deg") a = a * Math.PI / 180;
-
-      // Ajout du pop (impulsion)
-      if (document.getElementById('popCheck').checked) {
-        // Le pop ajoute un boost en fonction de l'angle : plus faible angle = plus de portée (exemple)
-        // On prend 15% de la vitesse initiale en plus max, pondéré par cos(angle)
-        let popBoost = 0.15 * v * Math.cos(a);
-        v += popBoost;
-      }
-
-      // Simulation du vent
-      if (document.getElementById('windCheck').checked) {
-        let windSpeed = parseInput(document.getElementById('windSpeed').value);
-        let windAngle = parseInput(document.getElementById('windAngle').value);
-
-        if (isNaN(windSpeed) || isNaN(windAngle)) {
-          document.getElementById("resultat").innerHTML = "<span style='color:red;'>Veuillez entrer des nombres valides pour la vitesse et la direction du vent.</span>";
-          return;
-        }
-
-        let windAngleRad = windAngle * Math.PI / 180;
-
-        // Vent de face ralentit, vent dans le dos accélère
-        let ventEffect = - windSpeed * Math.cos(windAngleRad - a);
-
-        v += ventEffect;
-
-        if (v < 0) v = 0;
-      }
-
-      let portée = (v * v * Math.sin(2 * a)) / g;
-
-      if (document.getElementById('frictionCheck').checked) {
-        portée *= 0.85; // réduction arbitraire de 15% pour frottements
-      }
-
-      let resultat = "<strong>Portée calculée :</strong> " + portée.toFixed(2) + " m<br>";
-
-      if (!isNaN(target)) {
-        if (portée < target) {
-          resultat += "💡 <em>La portée est inférieure à la cible.</em>";
-        } else if (portée > target) {
-          resultat += "💡 <em>La portée est supérieure à la cible.</em>";
+      if (mode === "portee") {
+        let v = val0;
+        let a = val1 * Math.PI / 180;
+        let portée = (v * v * Math.sin(2 * a)) / g;
+        result = `Portée calculée : ${portée.toFixed(2)} m`;
+      } else if (mode === "vitesse") {
+        let R = val0;
+        let a = val1 * Math.PI / 180;
+        let v = Math.sqrt((R * g) / Math.sin(2 * a));
+        result = `Vitesse initiale nécessaire : ${v.toFixed(2)} m/s`;
+      } else if (mode === "angle") {
+        let R = val0;
+        let v = val1;
+        let sin2a = (R * g) / (v * v);
+        if (sin2a < -1 || sin2a > 1) {
+          result = "Aucun angle possible avec ces paramètres.";
         } else {
-          resultat += "✅ <em>La portée correspond exactement à la cible.</em>";
+          let a1 = Math.asin(sin2a) / 2 * 180 / Math.PI;
+          let a2 = (90 - a1);
+          result = `Angles possibles : ${a1.toFixed(2)}° ou ${a2.toFixed(2)}°`;
         }
       }
 
-      document.getElementById("resultat").innerHTML = resultat;
+      document.getElementById("resultat").innerHTML = result;
     }
   </script>
 </body>
