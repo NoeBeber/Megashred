@@ -11,6 +11,11 @@
       max-width: 700px;
       margin: auto;
       padding: 1em;
+      background: #eef7ff;
+    }
+    h1 {
+      text-align: center;
+      color: #0057b7;
     }
     label {
       display: block;
@@ -25,6 +30,10 @@
       margin-top: 1em;
       padding: 0.5em;
       font-size: 1em;
+      background: #0057b7;
+      color: white;
+      border: none;
+      border-radius: 5px;
     }
     .result {
       margin-top: 1em;
@@ -32,9 +41,6 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       background: #f9f9f9;
-    }
-    canvas {
-      margin-top: 2em;
     }
     .links {
       margin-top: 1em;
@@ -44,33 +50,51 @@
       margin: 0 10px;
       text-decoration: none;
       font-weight: bold;
-      color: #0077cc;
+      color: #0057b7;
     }
     .warning {
       margin-top: 1em;
       font-size: 0.9em;
-      color: #555;
+      color: #333;
+      text-align: center;
+    }
+    canvas {
+      margin-top: 2em;
     }
   </style>
 </head>
 <body>
   <h1>Calculateur de saut VTT Freeride</h1>
 
-  <label for="mode">Choisir ce que vous voulez calculer :</label>
-  <select id="mode">
-    <option value="portee">Calculer la portée</option>
-    <option value="vitesse">Calculer la vitesse initiale</option>
-    <option value="angle">Calculer l'angle</option>
+  <label for="mode">Que souhaitez-vous calculer ?</label>
+  <select id="mode" onchange="updateForm()">
+    <option value="portee">Portée</option>
+    <option value="vitesse">Vitesse initiale</option>
+    <option value="angle">Angle</option>
   </select>
 
-  <label for="speed">Vitesse initiale (m/s) :</label>
-  <input type="text" id="speed" placeholder="ex : 10">
+  <div id="bloc-vitesse">
+    <label for="speed">Vitesse initiale :</label>
+    <input type="text" id="speed" placeholder="ex : 36 ou 10,5">
+    <select id="speedUnit">
+      <option value="ms">m/s</option>
+      <option value="kmh">km/h</option>
+    </select>
+  </div>
 
-  <label for="angle">Angle (degrés) :</label>
-  <input type="text" id="angle" placeholder="ex : 45">
+  <div id="bloc-angle">
+    <label for="angle">Angle :</label>
+    <input type="text" id="angle" placeholder="ex : 45 ou 0,785">
+    <select id="angleUnit">
+      <option value="deg">degrés</option>
+      <option value="rad">radians</option>
+    </select>
+  </div>
 
-  <label for="target">Portée souhaitée (mètres) :</label>
-  <input type="text" id="target" placeholder="ex : 10">
+  <div id="bloc-portee">
+    <label for="target">Portée souhaitée (mètres) :</label>
+    <input type="text" id="target" placeholder="ex : 10 ou 10,5">
+  </div>
 
   <button onclick="calculer()">Calculer</button>
 
@@ -84,7 +108,8 @@
   </div>
 
   <div class="warning">
-    Simulation qui se rapproche de la réalité. La vitesse saisie correspond à la vitesse à la sortie du saut, pas avant.
+    Simulation qui se rapproche de la réalité.<br>
+    La vitesse saisie correspond à la vitesse à la sortie du saut, pas avant.
   </div>
 
   <script>
@@ -92,44 +117,57 @@
       return parseFloat(value.replace(',', '.'));
     }
 
+    function updateForm() {
+      const mode = document.getElementById("mode").value;
+      document.getElementById("bloc-vitesse").style.display = (mode === "portee" || mode === "angle") ? "block" : "none";
+      document.getElementById("bloc-angle").style.display = (mode === "portee" || mode === "vitesse") ? "block" : "none";
+      document.getElementById("bloc-portee").style.display = (mode === "vitesse" || mode === "angle") ? "block" : "none";
+    }
+
+    updateForm();
+
     function calculer() {
       const g = 9.81;
       let mode = document.getElementById("mode").value;
+
       let v = parseInput(document.getElementById("speed").value);
+      let vUnit = document.getElementById("speedUnit").value;
       let a = parseInput(document.getElementById("angle").value);
+      let aUnit = document.getElementById("angleUnit").value;
       let target = parseInput(document.getElementById("target").value);
+
+      if (vUnit === "kmh") v = v / 3.6;
+      if (aUnit === "deg") a = a * Math.PI / 180;
+
       let resultText = "";
 
       if (mode === "portee") {
         if (isNaN(v) || isNaN(a)) {
-          resultText = "Veuillez entrer la vitesse et l'angle.";
+          resultText = "Veuillez saisir la vitesse et l'angle.";
         } else {
-          let rad = a * Math.PI / 180;
-          let portée = (v * v * Math.sin(2 * rad)) / g;
+          let portée = (v * v * Math.sin(2 * a)) / g;
           resultText = `Portée : ${portée.toFixed(2)} m`;
-          tracerCourbe(v, rad);
+          tracerCourbe(v, a);
         }
       } else if (mode === "vitesse") {
         if (isNaN(target) || isNaN(a)) {
-          resultText = "Veuillez entrer la portée et l'angle.";
+          resultText = "Veuillez saisir la portée et l'angle.";
         } else {
-          let rad = a * Math.PI / 180;
-          let v_calc = Math.sqrt(target * g / Math.sin(2 * rad));
+          let v_calc = Math.sqrt(target * g / Math.sin(2 * a));
           resultText = `Vitesse initiale : ${v_calc.toFixed(2)} m/s`;
-          tracerCourbe(v_calc, rad);
+          tracerCourbe(v_calc, a);
         }
       } else if (mode === "angle") {
         if (isNaN(target) || isNaN(v)) {
-          resultText = "Veuillez entrer la portée et la vitesse.";
+          resultText = "Veuillez saisir la portée et la vitesse.";
         } else {
           let sin2a = (target * g) / (v * v);
           if (sin2a < -1 || sin2a > 1) {
             resultText = "Aucun angle possible avec ces valeurs.";
           } else {
-            let rad = Math.asin(sin2a) / 2;
-            let deg = rad * 180 / Math.PI;
-            resultText = `Angle : ${deg.toFixed(2)} degrés`;
-            tracerCourbe(v, rad);
+            let angle_calc = Math.asin(sin2a) / 2;
+            resultText = `Angle : ${(angle_calc * 180 / Math.PI).toFixed(2)} degrés`;
+            tracerCourbe(v, angle_calc);
           }
         }
       }
@@ -137,13 +175,13 @@
       document.getElementById("resultat").innerHTML = resultText;
     }
 
-    function tracerCourbe(v, rad) {
+    function tracerCourbe(v, a) {
       const g = 9.81;
       let dataX = [];
       let dataY = [];
       for (let t = 0; t < 10; t += 0.05) {
-        let x = v * Math.cos(rad) * t;
-        let y = v * Math.sin(rad) * t - 0.5 * g * t * t;
+        let x = v * Math.cos(a) * t;
+        let y = v * Math.sin(a) * t - 0.5 * g * t * t;
         if (y < 0) break;
         dataX.push(x);
         dataY.push(y);
@@ -158,11 +196,19 @@
           datasets: [{
             label: 'Trajectoire',
             data: dataY,
-            borderColor: 'blue',
+            borderColor: '#0057b7',
             fill: false,
             pointRadius: 0
           }]
         },
         options: {
           scales: {
-            x: { title: { display: true,
+            x: { title: { display: true, text: 'Distance (m)' } },
+            y: { title: { display: true, text: 'Hauteur (m)' } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
