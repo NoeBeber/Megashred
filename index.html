@@ -4,132 +4,165 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calculateur de saut VTT Freeride</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: sans-serif;
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
       padding: 1em;
-      background: #f0f0f0;
     }
-    h1 {
-      text-align: center;
-    }
-    label, select, input, button {
+    label {
       display: block;
+      margin-top: 1em;
+    }
+    input, select {
+      padding: 0.3em;
+      margin-top: 0.3em;
       width: 100%;
-      margin-top: 0.5em;
     }
     button {
+      margin-top: 1em;
       padding: 0.5em;
       font-size: 1em;
-      background-color: #007acc;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-    button:hover {
-      background-color: #005f99;
     }
     .result {
-      background: #fff;
+      margin-top: 1em;
+      padding: 1em;
       border: 1px solid #ccc;
       border-radius: 8px;
-      padding: 1em;
-      margin-top: 1em;
+      background: #f9f9f9;
+    }
+    canvas {
+      margin-top: 2em;
     }
     .links {
       margin-top: 1em;
       text-align: center;
     }
     .links a {
-      margin: 0 1em;
+      margin: 0 10px;
       text-decoration: none;
-      color: #007acc;
+      font-weight: bold;
+      color: #0077cc;
+    }
+    .warning {
+      margin-top: 1em;
+      font-size: 0.9em;
+      color: #555;
     }
   </style>
 </head>
 <body>
   <h1>Calculateur de saut VTT Freeride</h1>
-  
-  <label for="mode">Choisissez ce que vous voulez calculer :</label>
+
+  <label for="mode">Choisir ce que vous voulez calculer :</label>
   <select id="mode">
-    <option value="portee">Portée</option>
-    <option value="vitesse">Vitesse initiale</option>
-    <option value="angle">Angle</option>
+    <option value="portee">Calculer la portée</option>
+    <option value="vitesse">Calculer la vitesse initiale</option>
+    <option value="angle">Calculer l'angle</option>
   </select>
 
-  <div id="inputs"></div>
+  <label for="speed">Vitesse initiale (m/s) :</label>
+  <input type="text" id="speed" placeholder="ex : 10">
+
+  <label for="angle">Angle (degrés) :</label>
+  <input type="text" id="angle" placeholder="ex : 45">
+
+  <label for="target">Portée souhaitée (mètres) :</label>
+  <input type="text" id="target" placeholder="ex : 10">
 
   <button onclick="calculer()">Calculer</button>
 
   <div class="result" id="resultat"></div>
 
+  <canvas id="graph" width="600" height="400"></canvas>
+
   <div class="links">
-    <a href="https://www.instagram.com/mega__shred/" target="_blank">Instagram</a>
+    <a href="https://www.instagram.com/mega__shred/" target="_blank">Instagram</a> |
     <a href="https://www.youtube.com/channel/UCzrMXoQNUS7lzOdxzoR7H1w" target="_blank">YouTube</a>
   </div>
 
-  <p style="font-size: 0.9em; text-align: center; margin-top: 1em;">
-    Cette simulation se rapproche de la réalité. La vitesse saisie correspond à la vitesse à la sortie du saut, pas avant.
-  </p>
+  <div class="warning">
+    Simulation qui se rapproche de la réalité. La vitesse saisie correspond à la vitesse à la sortie du saut, pas avant.
+  </div>
 
   <script>
-    const g = 9.81;
-
-    const modes = {
-      portee: ["Vitesse initiale (m/s)", "Angle (degrés)"],
-      vitesse: ["Portée souhaitée (m)", "Angle (degrés)"],
-      angle: ["Portée souhaitée (m)", "Vitesse initiale (m/s)"]
-    };
-
-    document.getElementById("mode").addEventListener("change", updateInputs);
-    updateInputs();
-
-    function updateInputs() {
-      const mode = document.getElementById("mode").value;
-      const container = document.getElementById("inputs");
-      container.innerHTML = "";
-      modes[mode].forEach((label, i) => {
-        container.innerHTML += `<label>${label}</label><input type="text" id="input${i}" placeholder="ex: 10 ou 45" />`;
-      });
-    }
-
     function parseInput(value) {
-      return parseFloat(value.replace(",", "."));
+      return parseFloat(value.replace(',', '.'));
     }
 
     function calculer() {
-      const mode = document.getElementById("mode").value;
-      let val0 = parseInput(document.getElementById("input0").value);
-      let val1 = parseInput(document.getElementById("input1").value);
-      let result = "";
+      const g = 9.81;
+      let mode = document.getElementById("mode").value;
+      let v = parseInput(document.getElementById("speed").value);
+      let a = parseInput(document.getElementById("angle").value);
+      let target = parseInput(document.getElementById("target").value);
+      let resultText = "";
 
       if (mode === "portee") {
-        let v = val0;
-        let a = val1 * Math.PI / 180;
-        let portée = (v * v * Math.sin(2 * a)) / g;
-        result = `Portée calculée : ${portée.toFixed(2)} m`;
-      } else if (mode === "vitesse") {
-        let R = val0;
-        let a = val1 * Math.PI / 180;
-        let v = Math.sqrt((R * g) / Math.sin(2 * a));
-        result = `Vitesse initiale nécessaire : ${v.toFixed(2)} m/s`;
-      } else if (mode === "angle") {
-        let R = val0;
-        let v = val1;
-        let sin2a = (R * g) / (v * v);
-        if (sin2a < -1 || sin2a > 1) {
-          result = "Aucun angle possible avec ces paramètres.";
+        if (isNaN(v) || isNaN(a)) {
+          resultText = "Veuillez entrer la vitesse et l'angle.";
         } else {
-          let a1 = Math.asin(sin2a) / 2 * 180 / Math.PI;
-          let a2 = (90 - a1);
-          result = `Angles possibles : ${a1.toFixed(2)}° ou ${a2.toFixed(2)}°`;
+          let rad = a * Math.PI / 180;
+          let portée = (v * v * Math.sin(2 * rad)) / g;
+          resultText = `Portée : ${portée.toFixed(2)} m`;
+          tracerCourbe(v, rad);
+        }
+      } else if (mode === "vitesse") {
+        if (isNaN(target) || isNaN(a)) {
+          resultText = "Veuillez entrer la portée et l'angle.";
+        } else {
+          let rad = a * Math.PI / 180;
+          let v_calc = Math.sqrt(target * g / Math.sin(2 * rad));
+          resultText = `Vitesse initiale : ${v_calc.toFixed(2)} m/s`;
+          tracerCourbe(v_calc, rad);
+        }
+      } else if (mode === "angle") {
+        if (isNaN(target) || isNaN(v)) {
+          resultText = "Veuillez entrer la portée et la vitesse.";
+        } else {
+          let sin2a = (target * g) / (v * v);
+          if (sin2a < -1 || sin2a > 1) {
+            resultText = "Aucun angle possible avec ces valeurs.";
+          } else {
+            let rad = Math.asin(sin2a) / 2;
+            let deg = rad * 180 / Math.PI;
+            resultText = `Angle : ${deg.toFixed(2)} degrés`;
+            tracerCourbe(v, rad);
+          }
         }
       }
 
-      document.getElementById("resultat").innerHTML = result;
+      document.getElementById("resultat").innerHTML = resultText;
     }
-  </script>
-</body>
-</html>
+
+    function tracerCourbe(v, rad) {
+      const g = 9.81;
+      let dataX = [];
+      let dataY = [];
+      for (let t = 0; t < 10; t += 0.05) {
+        let x = v * Math.cos(rad) * t;
+        let y = v * Math.sin(rad) * t - 0.5 * g * t * t;
+        if (y < 0) break;
+        dataX.push(x);
+        dataY.push(y);
+      }
+
+      const ctx = document.getElementById('graph').getContext('2d');
+      if (window.myChart) window.myChart.destroy();
+      window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dataX,
+          datasets: [{
+            label: 'Trajectoire',
+            data: dataY,
+            borderColor: 'blue',
+            fill: false,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          scales: {
+            x: { title: { display: true,
