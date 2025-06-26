@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculateur de saut VTT Freeride</title>
+  <title>Calculateur de trajectoire pour saut (MTB, Moto, Voiture...)</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
@@ -64,7 +64,7 @@
   </style>
 </head>
 <body>
-  <h1>Calculateur de saut VTT Freeride</h1>
+  <h1>Calculateur de trajectoire pour saut (MTB, Moto, Voiture...)</h1>
 
   <label for="mode">Que souhaitez-vous calculer ?</label>
   <select id="mode" onchange="updateForm()">
@@ -109,7 +109,7 @@
 
   <div class="warning">
     Simulation qui se rapproche de la réalité.<br>
-    La vitesse saisie correspond à la vitesse à la sortie du saut, pas avant.
+    La vitesse saisie correspond à la vitesse à la sortie du saut, pas avant le tremplin !.
   </div>
 
   <script>
@@ -177,34 +177,42 @@
 
     function tracerCourbe(v, a) {
       const g = 9.81;
-      let dataX = [];
-      let dataY = [];
+      let dataPoints = [];
       for (let t = 0; t < 10; t += 0.05) {
         let x = v * Math.cos(a) * t;
-        let y = v * Math.sin(a) * t - 0.5 * g * t * t;
-        if (y < 0) break;
-        dataX.push(x);
-        dataY.push(y);
+        let z = v * Math.sin(a) * t - 0.5 * g * t * t;
+        if (z < 0) break;
+        dataPoints.push({ x: x, y: z });
       }
 
       const ctx = document.getElementById('graph').getContext('2d');
       if (window.myChart) window.myChart.destroy();
       window.myChart = new Chart(ctx, {
-        type: 'line',
+        type: 'scatter',
         data: {
-          labels: dataX,
           datasets: [{
-            label: 'Trajectoire',
-            data: dataY,
+            label: 'Trajectoire X-Z',
+            data: dataPoints,
             borderColor: '#0057b7',
+            backgroundColor: '#0057b7',
+            showLine: true,
             fill: false,
-            pointRadius: 0
           }]
         },
         options: {
           scales: {
-            x: { title: { display: true, text: 'Distance (m)' } },
-            y: { title: { display: true, text: 'Hauteur (m)' } }
+            x: {
+              title: {
+                display: true,
+                text: 'Distance X (m)'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Hauteur Z (m)'
+              }
+            }
           }
         }
       });
